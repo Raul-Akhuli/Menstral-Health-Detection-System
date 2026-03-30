@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Blood Health Advisor — AI-powered blood cell image classification with hospital finder, doctor availability, and menstrual health nutrition guidance.">
+    <title>Blood Health Advisor — AI Health Analysis</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩸</text></svg>">
+</head>
+
+<body>
+
+    <!-- ── NAVBAR ─────────────────────────────── -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="#">
+                <span class="logo-icon">🩸</span>
+                Blood Health Advisor
+            </a>
+            <ul class="navbar-links" id="navLinks">
+                <li><a href="#analysis" class="active">Analysis</a></li>
+                <li><a href="#hospitals">Hospitals</a></li>
+                <li><a href="#doctors">Doctors</a></li>
+                <li><a href="#menstrual-health">Menstrual Health</a></li>
+            </ul>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ── TIME WIDGET ───────────────────────── -->
+    <div class="time-widget" id="timeWidget">
+        <div class="greeting" id="timeGreeting">--</div>
+        <div class="time-value" id="timeValue">--:--</div>
+        <div class="time-label" id="timeDate">Loading...</div>
+    </div>
+
+    <!-- ── HERO ───────────────────────────────── -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">
+                <span class="pulse-dot"></span>
+                AI-Powered Blood Analysis v3.0
+            </div>
+            <h1>
+                Your <span class="gradient-text">Blood Health</span><br>
+                Companion
+            </h1>
+            <p class="subtitle">
+                Upload blood cell images for instant AI analysis, find nearby hospitals &amp; doctors,
+                and get expert menstrual health nutrition guidance — all in one place.
+            </p>
+
+        </div>
+    </section>
+
+    <!-- ── BLOOD ANALYSIS SECTION ─────────────── -->
+    <section class="section" id="analysis">
+        <div class="container">
+            <div class="section-header animate-in">
+                <div class="section-tag">🔬 AI Analysis</div>
+                <h2>Blood Cell Classification</h2>
+                <p>Upload a blood cell microscope image for instant AI-powered classification and health
+                    recommendations.</p>
+            </div>
+
+            <div class="upload-section animate-in">
+                <div class="upload-zone glass-card" id="uploadZone">
+                    <div class="upload-icon">🔬</div>
+                    <h3>Drop your blood cell image here</h3>
+                    <p>Supports JPG, PNG, BMP — microscope images recommended</p>
+                    <button class="btn-browse" id="browseBtn">📁 Browse Files</button>
+                    <input type="file" class="file-input" id="fileInput" accept="image/*">
+                </div>
+
+                <div class="preview-container" id="previewContainer">
+                    <img class="preview-image" id="previewImage" alt="Preview">
+                    <div class="file-info" id="fileInfo"></div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="analyzeBtn" disabled>
+                            🧪 Analyze Image
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="clearBtn">
+                            ✕ Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-section" id="resultsSection">
+                <div class="result-card" id="predictionCard">
+                    <div class="result-header">
+                        <div class="result-icon" id="resultIcon">🔬</div>
+                        <div>
+                            <h3 id="resultClass">--</h3>
+                            <div class="confidence" id="resultConfidence">Confidence: --</div>
+                        </div>
+                    </div>
+                    <div class="confidence-bar-track">
+                        <div class="confidence-bar-fill" id="confidenceBar"></div>
+                    </div>
+                    <div class="prob-grid" id="probGrid"></div>
+                </div>
+
+                <div class="result-card">
+                    <h3 style="margin-bottom:16px; font-family:var(--font-display)">📋 Recommended Steps</h3>
+                    <ol class="steps-list" id="stepsList"></ol>
+                </div>
+
+                <div class="result-card" id="hospitalResultCard" style="display:none">
+                    <h3 style="margin-bottom:16px; font-family:var(--font-display)">🏥 Nearest Hospital</h3>
+                    <div id="nearestHospitalInfo"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── HOSPITALS SECTION ──────────────────── -->
+    <section class="section" id="hospitals">
+        <div class="container">
+            <div class="section-header animate-in">
+                <div class="section-tag">🏥 Hospital Finder</div>
+                <h2>Find Nearest Hospitals</h2>
+                <p>Locate hospitals and clinics near you with real-time availability and emergency services.</p>
+            </div>
+
+            <div class="animate-in">
+                <div class="location-status" id="locationStatus">
+                    📍 Detecting your location...
+                </div>
+
+                <div class="hospital-controls">
+                    <div class="radius-filter">
+                        <label>Radius: <span id="hospRadiusVal" style="color:#fff;font-weight:600">5</span> km</label>
+                        <input type="range" id="hospRadius" min="1" max="50" value="5">
+                    </div>
+                    <button class="btn btn-primary btn-sm" id="findHospitalsBtn">
+                        🔍 Find Hospitals
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="refreshLocationBtn">
+                        📍 Refresh Location
+                    </button>
+                </div>
+
+                <!-- Map -->
+                <div id="hospitalMap"
+                    style="height:400px; border-radius:16px; margin-bottom:24px; border:1px solid rgba(255,255,255,0.08); display:none;">
+                </div>
+
+                <div class="hospital-grid" id="hospitalGrid">
+                    <div class="empty-state">
+                        <div class="empty-icon">🏥</div>
+                        <h4>No hospitals loaded yet</h4>
+                        <p>Click "Find Hospitals" to search near your location</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── DOCTORS SECTION ────────────────────── -->
+    <section class="section" id="doctors">
+        <div class="container">
+            <div class="section-header animate-in">
+                <div class="section-tag">👨‍⚕️ Doctor Search</div>
+                <h2>Find Available Doctors</h2>
+                <p>Search doctors by specialty and check real-time availability at nearby hospitals.</p>
+            </div>
+
+            <div class="animate-in">
+                <div class="doctor-filters">
+                    <select class="filter-select" id="specialtyFilter">
+                        <option value="">All Specialties</option>
+                        <option value="Hematology">Hematology</option>
+                        <option value="General Medicine">General Medicine</option>
+                        <option value="Emergency Medicine">Emergency Medicine</option>
+                        <option value="Oncology">Oncology</option>
+                        <option value="Pathology">Pathology</option>
+                        <option value="Gynecology">Gynecology</option>
+                        <option value="Internal Medicine">Internal Medicine</option>
+                        <option value="Pediatrics">Pediatrics</option>
+                    </select>
+                    <div class="radius-filter">
+                        <label>Radius: <span id="docRadiusVal" style="color:#fff;font-weight:600">10</span> km</label>
+                        <input type="range" id="docRadius" min="1" max="50" value="10">
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="availableOnlyToggle">
+                        <span class="toggle-track"></span>
+                        Available Now Only
+                    </label>
+                    <button class="btn btn-primary btn-sm" id="searchDoctorsBtn">
+                        🔍 Search Doctors
+                    </button>
+                </div>
+
+                <div class="doctor-grid" id="doctorGrid">
+                    <div class="empty-state">
+                        <div class="empty-icon">👨‍⚕️</div>
+                        <h4>No doctors loaded yet</h4>
+                        <p>Click "Search Doctors" to find available physicians</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── MENSTRUAL HEALTH SECTION ───────────── -->
+    <section class="section" id="menstrual-health">
+        <div class="container">
+            <div class="section-header animate-in">
+                <div class="section-tag">🌸 Women's Health</div>
+                <h2>Menstrual Health &amp; Nutrition</h2>
+                <p>Comprehensive nutrition guidance to support your body through every phase of the menstrual cycle.</p>
+            </div>
+
+            <div class="animate-in">
+                <div class="disclaimer">
+                    <span class="disc-icon">⚠️</span>
+                    <p>This information is for educational purposes only and is NOT a substitute for professional
+                        medical advice. Always consult your healthcare provider for personalised guidance.</p>
+                </div>
+
+                <div class="health-tabs" id="healthTabs">
+                    <button class="health-tab active" data-tab="foods-eat">🥗 Foods to Eat</button>
+                    <button class="health-tab" data-tab="foods-avoid">🚫 Foods to Avoid</button>
+                    <button class="health-tab" data-tab="cycle-phases">🔄 Cycle Phases</button>
+                    <button class="health-tab" data-tab="supplements">💊 Supplements</button>
+                    <button class="health-tab" data-tab="warnings">⚠️ Warning Signs</button>
+                    <button class="health-tab" data-tab="daily-tips">💡 Daily Tips</button>
+                </div>
+
+                <!-- Panel: Foods to Eat -->
+                <div class="health-panel active" id="panel-foods-eat">
+                    <div id="foodsToEatContent">
+                        <div class="skeleton skeleton-card" style="margin-bottom:16px"></div>
+                        <div class="skeleton skeleton-card"></div>
+                    </div>
+                </div>
+
+                <!-- Panel: Foods to Avoid -->
+                <div class="health-panel" id="panel-foods-avoid">
+                    <div id="foodsToAvoidContent">
+                        <div class="skeleton skeleton-card" style="margin-bottom:16px"></div>
+                    </div>
+                </div>
+
+                <!-- Panel: Cycle Phases -->
+                <div class="health-panel" id="panel-cycle-phases">
+                    <div id="cyclePhasesContent">
+                        <div class="skeleton skeleton-card"></div>
+                    </div>
+                </div>
+
+                <!-- Panel: Supplements -->
+                <div class="health-panel" id="panel-supplements">
+                    <div id="supplementsContent">
+                        <div class="skeleton skeleton-card"></div>
+                    </div>
+                </div>
+
+                <!-- Panel: Warning Signs -->
+                <div class="health-panel" id="panel-warnings">
+                    <div id="warningsContent">
+                        <div class="skeleton skeleton-card"></div>
+                    </div>
+                </div>
+
+                <!-- Panel: Daily Tips -->
+                <div class="health-panel" id="panel-daily-tips">
+                    <div id="dailyTipsContent">
+                        <div class="skeleton skeleton-card"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ─────────────────────────────── -->
+    <footer class="footer">
+        <div class="container">
+            <p>Blood Health Advisor v3.0 — AI-Powered Medical Analysis</p>
+            <p style="margin-top:6px">Built with <span class="heart">❤️</span> using FastAPI + VGG16 Deep Learning</p>
+        </div>
+    </footer>
+
+    <!-- ── LOADING OVERLAY ────────────────────── -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Analyzing blood cell image...</div>
+    </div>
+
+    <!-- ── TOAST CONTAINER ────────────────────── -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="./app.js"></script>
+</body>
+
+</html>

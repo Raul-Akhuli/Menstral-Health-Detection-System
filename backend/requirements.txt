@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+tensorflow
+keras
+numpy
+pillow
+python-multipart
+python-dotenv
+jinja2
