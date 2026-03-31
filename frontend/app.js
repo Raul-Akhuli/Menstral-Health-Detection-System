@@ -4,13 +4,12 @@
  */
 
 // ─── API BASE URL ───────────────────────────────
-// When opened via VS Code Live Preview (or any non-backend port),
-// route API calls to the FastAPI backend on port 8000.
+// Option 1: Local Development (FastAPI on port 8000)
 const BACKEND_PORT = 8000;
-const BASE_URL =
-    window.location.port == BACKEND_PORT
-        ? ''  // served by FastAPI itself — relative URLs work
-        : `http://127.0.0.1:${BACKEND_PORT}`;
+const BASE_URL = window.location.port == BACKEND_PORT ? '' : `http://127.0.0.1:${BACKEND_PORT}`;
+
+// Option 2: Remote Production (UEM Server)
+// const BASE_URL = "https://server.uemcseaiml.org:8022/blood";
 
 // ─── STATE ──────────────────────────────────────
 const state = {
