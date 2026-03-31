@@ -673,18 +673,28 @@ def _fetch_hospitals_google(lat: float, lon: float, radius: int, api_key: str) -
 def _fetch_hospitals_auto(lat: float, lon: float, radius: int) -> list[dict]:
     api_key = os.getenv("GOOGLE_PLACES_API_KEY", "").strip()
     hospitals = []
+    source = "OpenStreetMap"
+    
     if api_key:
         try:
             hospitals = _fetch_hospitals_google(lat, lon, radius, api_key)
-        except Exception:
-            # Silently fallback to OpenStreetMap if Google API fails
+            source = "Google Places"
+        except Exception as e:
+            # Fallback to OpenStreetMap if Google API fails
+            print(f"⚠️ Google Places API error: {e}")
             pass
             
     if not hospitals:
         hospitals = _fetch_hospitals_osm(lat, lon, radius)
+        source = "OpenStreetMap"
         
     max_dist_km = radius / 1000.0
-    return [h for h in hospitals if h["distance"] <= max_dist_km]
+    results = [h for h in hospitals if h["distance"] <= max_dist_km]
+    # Add source attribution to results
+    for r in results:
+        r["_source"] = source
+    return results
+
 
 # ──────────────────────────────────────────────
 

@@ -283,7 +283,7 @@ function renderResults(data) {
                 <span style="font-size:1.8rem">🏥</span>
                 <div>
                     <strong style="font-size:1.1rem">${h.name}</strong>
-                    <div style="font-size:0.85rem; color:var(--text-secondary)">${h.distance} km away</div>
+                    <div style="font-size:0.85rem; color:var(--text-secondary)">${h.distance} km away · <span style="color:var(--accent-success)">Powered by ${h._source || 'OSM'}</span></div>
                 </div>
             </div>
             <div style="font-size:0.88rem; color:var(--text-secondary)">
@@ -417,6 +417,10 @@ async function findHospitals() {
                         : ''}
                     <h4>${h.name}</h4>
                     <div class="meta">
+                        <div class="meta-item">
+                            <span class="icon">🔍</span>
+                            <span style="color:var(--accent-success);font-weight:600">Source: ${h._source || 'OSM'}</span>
+                        </div>
                         <div class="meta-item">
                             <span class="icon">📍</span>
                             <span class="distance">${h.distance} km</span> — ${h.address || 'Address N/A'}
