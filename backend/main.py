@@ -676,8 +676,9 @@ def _fetch_hospitals_auto(lat: float, lon: float, radius: int) -> list[dict]:
     if api_key:
         try:
             hospitals = _fetch_hospitals_google(lat, lon, radius, api_key)
-        except Exception as e:
-            print(f"Google API failed: {e}. Falling back to OpenStreetMap.")
+        except Exception:
+            # Silently fallback to OpenStreetMap if Google API fails
+            pass
             
     if not hospitals:
         hospitals = _fetch_hospitals_osm(lat, lon, radius)

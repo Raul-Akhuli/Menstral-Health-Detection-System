@@ -218,15 +218,38 @@ function renderResults(data) {
     // Probabilities
     const probGrid = $('#probGrid');
     probGrid.innerHTML = '';
+    
+    // Safely handle probabilities (could be object, array, or missing)
     if (data.probabilities) {
-        for (const [cls, prob] of Object.entries(data.probabilities)) {
-            const pct = (prob * 100).toFixed(1);
-            probGrid.innerHTML += `
-                <div class="prob-item">
-                    <div class="prob-name">${cls}</div>
-                    <div class="prob-value">${pct}%</div>
-                </div>
-            `;
+        try {
+            // If it's an object, use Object.entries
+            if (typeof data.probabilities === 'object' && !Array.isArray(data.probabilities)) {
+                for (const [cls, prob] of Object.entries(data.probabilities)) {
+                    const pct = (prob * 100).toFixed(1);
+                    probGrid.innerHTML += `
+                        <div class="prob-item">
+                            <div class="prob-name">${cls}</div>
+                            <div class="prob-value">${pct}%</div>
+                        </div>
+                    `;
+                }
+            }
+            // If it's an array, handle it differently
+            else if (Array.isArray(data.probabilities)) {
+                const classList = data.class_names || ['Class 1', 'Class 2'];
+                data.probabilities.forEach((prob, idx) => {
+                    const cls = classList[idx] || `Class ${idx + 1}`;
+                    const pct = (prob * 100).toFixed(1);
+                    probGrid.innerHTML += `
+                        <div class="prob-item">
+                            <div class="prob-name">${cls}</div>
+                            <div class="prob-value">${pct}%</div>
+                        </div>
+                    `;
+                });
+            }
+        } catch (e) {
+            console.error('Error rendering probabilities:', e);
         }
     }
 

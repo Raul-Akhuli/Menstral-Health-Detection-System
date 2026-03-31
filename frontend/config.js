@@ -27,7 +27,7 @@ const ENVIRONMENT = {
 //   - Set to LOCAL, test backend locally
 // Before GitHub Push & Vercel Deploy:
 //   - Set to PRODUCTION, commit & push
-const ACTIVE_ENV = ENVIRONMENT.PRODUCTION;
+const ACTIVE_ENV = ENVIRONMENT.LOCAL;
 
 // ─── DERIVED CONFIGURATION ──────────────────────
 const BASE_URL = ACTIVE_ENV.baseUrl;
