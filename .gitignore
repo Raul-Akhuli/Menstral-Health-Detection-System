@@ -41,22 +41,25 @@ myenv/
 .venv/
 
 # Machine Learning Binaries (Usually too large for GitHub/Vercel)
-# *.keras  ← Allow VGG16 model in backend/models/ folder
 *.h5
 *.pt
 *.pth
 *.onnx
 *.weights
 *.caffemodel
+*.pb
+*.tflite
 
 # Allow specific model files by exception
 !backend/models/*.keras
 !backend/models/class_names.json
-*.pb
-*.tflite
+
+# Explicitly ignore common model directories EXCEPT in backend/
 models/
+!backend/models/
 checkpoint/
 checkpoints/
+
 
 # Data / Logs
 data/
