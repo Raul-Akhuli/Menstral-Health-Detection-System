@@ -1117,6 +1117,12 @@ async def serve_js() -> FileResponse:
     return FileResponse(STATIC_DIR / "app.js", media_type="application/javascript")
 
 
+@app.get("/config.js")
+async def serve_config() -> FileResponse:
+    """Serve Config JS so relative path ./config.js works from root."""
+    return FileResponse(STATIC_DIR / "config.js", media_type="application/javascript")
+
+
 if __name__ == "__main__":
     import uvicorn
     # Use 0.0.0.0 to allow access from external frontend (like Vercel)
